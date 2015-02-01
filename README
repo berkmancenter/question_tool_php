@@ -1,0 +1,18 @@
+Questions Tool
+
+* to customize for use, you need to update variables in functions.php
+
+1. line 11 needs:
+  db.hostname.or.ip replaced by the database host (mysql)
+  db.user replaced by the database user with access to the choosen database
+  db.user.pw replaced by the password for the database user
+2. line 14 needs db.name replaced by the database name
+3. line 265 needs web.hostname replaced by the hostname of the running web server or virtual host
+
+* you also need to add the following to your apache config to support unique urls for instances:
+
+RewriteEngine on
+RewriteCond %{REQUEST_URI} /questions.*
+RewriteRule !\.(gif|jpg|php|css)$ /questions/list.php [L] 
+
+

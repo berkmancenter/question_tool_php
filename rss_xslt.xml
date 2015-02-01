@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<xsl:output
+  method="xml"
+  omit-xml-declaration="no"
+  media-type="text/xml"
+  encoding="utf-8"
+  indent="yes"
+  cdata-section-elements="img"/>
+
+<xsl:variable name="tablename"><xsl:value-of select="entries/question/tablename" /></xsl:variable>
+
+<xsl:template match="entries">
+<rss version="2.0">
+<channel>
+<title><xsl:value-of select="question/tablename" /></title>
+	<link>http://www.law.harvard.edu/_dcohen/question_tool/link.php?tablename=<xsl:value-of select="question/tablename" /></link>
+    <description>Questions and answers submitted during class</description>
+    <language>en-US</language>
+    <copyright>Copyright 2006 The President and Fellows of Harvard College.</copyright>
+<xsl:for-each select="question">
+    <xsl:sort select="timeorder" order="descending" />
+	<item>
+		<title>Question (<xsl:value-of select="votes"/> votes)</title>
+		<link>http://www.law.harvard.edu/_dcohen/question_tool</link>
+		<description><xsl:value-of select="text"/></description>
+		<pubDate><xsl:value-of select="time"/></pubDate>
+	</item>
+<xsl:for-each select="answer">
+	<item>
+		<title>Answer </title>
+		<link>http://www.law.harvard.edu/_dcohen/question_tool</link>
+		<description><xsl:value-of select="text" /></description>
+		<pubDate><xsl:value-of select="time" /></pubDate>
+	</item>
+</xsl:for-each>
+</xsl:for-each>
+</channel>
+</rss>
+</xsl:template>
+</xsl:stylesheet>

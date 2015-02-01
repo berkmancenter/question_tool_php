@@ -1,0 +1,397 @@
+<xsl:stylesheet version="1.0"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<xsl:output 
+method="xml" 
+doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"  
+doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" />
+
+<xsl:template match="/">
+<xsl:variable name="tablename"><xsl:value-of select="entries/question/tablename" /></xsl:variable>
+<xsl:variable name="refresh_time"><xsl:value-of select="entries/globals/refresh_time" /></xsl:variable>
+
+<html>
+
+<head>
+
+<link rel="stylesheet" type="text/css" media="screen" href="liststyle.css" />
+
+<meta http-equiv="PRAGMA" content="NO-CACHE" />
+<xsl:if test="entries/globals/refresh_time &gt; 0">
+	<meta http-equiv="REFRESH" content="{$refresh_time}; URL={$tablename}" /> 
+</xsl:if>
+<meta content="text/html; charset=iso-8859-1" />
+<link rel="alternate" type="application/rss+xml" href="http://localhost/QATool/rss.php?tablename={$tablename}"/>
+<title>Live Question Tool</title>
+    
+</head>
+<body>
+
+<!-- Copy navbar code below -->
+<!-- <div id="nav">
+	<a href="list.php">Main Page</a><br/>
+	<a href="create.php">Create Instance</a><br/>
+	<a href="login.php">Admin Interface</a><br/>
+	<a href="chooser.php">Instance Archives</a><br/>
+	<a href="credits.php">QTool Credits</a><br/>
+	<a href="http://www.law.harvard.edu">Harvard Law School</a><br/>
+</div> -->
+<!-- End of navbar code -->
+
+<div id="wrapper">
+
+<div id="banner">Live Question Tool: <xsl:value-of select="entries/question/tablename" /></div>
+<br />
+<div style="text-align: center;">
+<xsl:if test="entries/globals/admin = 1">
+	<h2>Admin Interface</h2>
+	<a href="unhide_all.php">Unhide all questions</a> :: 
+	<a href="close.php">Delete this instance</a> ::
+	<a href="logout.php">Logout</a><br/>
+	<hr width="70%"/>
+</xsl:if>
+<p><xsl:value-of select="entries/globals/description" /></p>
+<a href="propose.php">Post a question</a> :: 
+<a href="chooser.php">Choose a different instance</a> ::
+<a href="report.php">Archived questions</a> :: 
+<a href="rss.php?tablename={$tablename}"><img src="../images/rss.gif" alt="xml icon" /></a>
+</div>
+
+<div id="popular">
+<div class="columnhead">Active Questions</div>
+
+<div class="subcolumn">
+	<xsl:for-each select="entries/question[@column='popular']">
+		<xsl:sort select="votes" order="descending" />
+		<xsl:if test="@index = 1">
+			<xsl:variable name="shade"><xsl:value-of select="shade" /></xsl:variable>
+			<xsl:variable name="age_marker"><xsl:value-of select="age_marker" /></xsl:variable>
+			<div class="question {$shade} {$age_marker}">
+				<div class="votes v{$shade}">
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@votelink" />
+						</xsl:attribute>					
+						<xsl:value-of select="votes"/><br/>votes
+					</a>
+				</div>
+				<xsl:if test="string-length(poster) &gt; 0">
+					<xsl:choose>
+					<xsl:when test="string-length(email) &gt; 0">
+						<b><a>
+							<xsl:attribute name="href">
+								mailto:<xsl:value-of select="email" />
+							</xsl:attribute>
+							<xsl:value-of select="poster"/>	
+						</a>: </b>
+					</xsl:when>
+					<xsl:when test="string-length(email) = 0">
+						<b><xsl:value-of select="poster"/>: </b> 
+					</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+				<xsl:value-of select="text"/><br/>
+				<xsl:for-each select="answer">
+					<xsl:text>&#160;&#160;&#160;&#160;&#160;</xsl:text>
+					<xsl:if test="string-length(poster) &gt; 0">
+						<xsl:choose>
+							<xsl:when test="string-length(email) &gt; 0">
+								<b><a>
+									<xsl:attribute name="href">
+										mailto:<xsl:value-of select="email" />
+									</xsl:attribute>
+									<xsl:value-of select="poster"/>	
+								</a>: </b>
+							</xsl:when>
+							<xsl:when test="string-length(email) = 0">
+								<b><xsl:value-of select="poster"/>: </b>
+							</xsl:when>
+						</xsl:choose>
+					</xsl:if>
+					<xsl:value-of select="text"/><br/>
+				</xsl:for-each>
+				<br/>
+				<span style="float: right; text-align: right; width: 25em">
+					<xsl:value-of select="f_time" />
+					:: <a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@answerlink" />
+						</xsl:attribute>
+						Reply
+					</a>
+					<xsl:if test="../globals/admin = 1">
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@disablelink" />
+							</xsl:attribute>
+							Hide
+						</a>
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@modifylink" />
+							</xsl:attribute>
+							Modify
+						</a>
+					</xsl:if>
+				</span>
+			</div>
+		</xsl:if>
+	</xsl:for-each>
+</div>
+
+<div class="subcolumn">
+	<xsl:for-each select="entries/question[@column='popular']">
+		<xsl:sort select="votes" order="descending" />
+		<xsl:if test="@index = 0">
+		<xsl:variable name="shade"><xsl:value-of select="shade" /></xsl:variable>
+		<xsl:variable name="age_marker"><xsl:value-of select="age_marker" /></xsl:variable>
+			<div class="question {$shade} {$age_marker}">
+				<div class="votes v{$shade}">	
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@votelink" />
+						</xsl:attribute>					
+						<xsl:value-of select="votes"/><br/>votes
+					</a>
+				</div>
+				<xsl:if test="string-length(poster) &gt; 0">
+					<xsl:choose>
+					<xsl:when test="string-length(email) &gt; 0">
+						<b><a>
+							<xsl:attribute name="href">
+								mailto:<xsl:value-of select="email" />
+							</xsl:attribute>
+							<xsl:value-of select="poster"/>	
+						</a>: </b>
+					</xsl:when>
+					<xsl:when test="string-length(email) = 0">
+						<b><xsl:value-of select="poster"/>: </b> 
+					</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+				<xsl:value-of select="text"/><br/>
+				<xsl:for-each select="answer">
+					<xsl:text>&#160;&#160;&#160;&#160;&#160;</xsl:text>
+					<xsl:if test="string-length(poster) &gt; 0">
+						<xsl:choose>
+							<xsl:when test="string-length(email) &gt; 0">
+								<b><a>
+									<xsl:attribute name="href">
+										mailto:<xsl:value-of select="email" />
+									</xsl:attribute>
+									<xsl:value-of select="poster"/>	
+								</a>: </b>
+							</xsl:when>
+							<xsl:when test="string-length(email) = 0">
+								<b><xsl:value-of select="poster"/>: </b>
+							</xsl:when>
+						</xsl:choose>
+					</xsl:if>
+					<xsl:value-of select="text"/><br/>
+				</xsl:for-each>
+				<br/>
+				<span style="float: right; text-align: right; width: 25em">
+					<xsl:value-of select="f_time" />				
+					:: <a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@answerlink" />
+						</xsl:attribute>
+						Reply
+					</a>
+					<xsl:if test="../globals/admin = 1">
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@disablelink" />
+							</xsl:attribute>
+							Hide
+						</a>
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@modifylink" />
+							</xsl:attribute>
+							Modify
+						</a>
+					</xsl:if>
+				</span>
+			</div>
+		</xsl:if>
+	</xsl:for-each>
+</div>
+
+</div>
+
+<div id="recent">
+<div class="columnhead">Most Recently Submitted Questions</div>
+
+<div class="subcolumn">
+	<xsl:for-each select="entries/question[@column='recent']">
+		<xsl:sort select="timeorder" order="descending" />
+		<xsl:if test="@index = 1">
+			<xsl:variable name="shade"><xsl:value-of select="shade" /></xsl:variable>
+			<xsl:variable name="age_marker"><xsl:value-of select="age_marker" /></xsl:variable>
+			<div class="question {$shade} {$age_marker}">
+				<div class="votes v{$shade}">	
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@votelink" />
+						</xsl:attribute>					
+						<xsl:value-of select="votes"/><br/>votes
+					</a>
+				</div>
+				<xsl:if test="string-length(poster) &gt; 0">
+					<xsl:choose>
+					<xsl:when test="string-length(email) &gt; 0">
+						<b><a>
+							<xsl:attribute name="href">
+								mailto:<xsl:value-of select="email" />
+							</xsl:attribute>
+							<xsl:value-of select="poster"/>	
+						</a>: </b>
+					</xsl:when>
+					<xsl:when test="string-length(email) = 0">
+						<b><xsl:value-of select="poster"/>: </b> 
+					</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+				<xsl:value-of select="text"/><br/>
+				<xsl:for-each select="answer">
+					<xsl:text>&#160;&#160;&#160;&#160;&#160;</xsl:text>
+					<xsl:if test="string-length(poster) &gt; 0">
+						<xsl:choose>
+							<xsl:when test="string-length(email) &gt; 0">
+								<b><a>
+									<xsl:attribute name="href">
+										mailto:<xsl:value-of select="email" />
+									</xsl:attribute>
+									<xsl:value-of select="poster"/>	
+								</a>: </b>
+							</xsl:when>
+							<xsl:when test="string-length(email) = 0">
+								<b><xsl:value-of select="poster"/>: </b>
+							</xsl:when>
+						</xsl:choose>
+					</xsl:if>
+					<xsl:value-of select="text"/><br/>
+				</xsl:for-each>
+				<br/>
+				<span style="float: right; text-align: right; width: 25em">
+					<xsl:value-of select="f_time" />
+					:: <a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@answerlink" />
+						</xsl:attribute>
+						Reply
+					</a>
+					<xsl:if test="../globals/admin = 1">
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@disablelink" />
+							</xsl:attribute>
+							Hide
+						</a>
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@modifylink" />
+							</xsl:attribute>
+							Modify
+						</a>
+					</xsl:if>
+				</span>
+			</div>
+		</xsl:if>
+	</xsl:for-each>
+</div>
+
+<div class="subcolumn">
+	<xsl:for-each select="entries/question[@column='recent']">
+		<xsl:sort select="timeorder" order="descending" />
+		<xsl:if test="@index = 0">
+			<xsl:variable name="shade"><xsl:value-of select="shade" /></xsl:variable>
+			<xsl:variable name="age_marker"><xsl:value-of select="age_marker" /></xsl:variable>
+			<div class="question {$shade} {$age_marker}">
+				<div class="votes v{$shade}">	
+					<a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@votelink" />
+						</xsl:attribute>					
+						<xsl:value-of select="votes"/><br/>votes
+					</a>
+				</div>
+				<xsl:if test="string-length(poster) &gt; 0">
+					<xsl:choose>
+					<xsl:when test="string-length(email) &gt; 0">
+						<b><a>
+							<xsl:attribute name="href">
+								mailto:<xsl:value-of select="email" />
+							</xsl:attribute>
+							<xsl:value-of select="poster"/>	
+						</a>: </b>
+					</xsl:when>
+					<xsl:when test="string-length(email) = 0">
+						<b><xsl:value-of select="poster"/>: </b> 
+					</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+				<xsl:value-of select="text"/><br/>
+				<xsl:for-each select="answer">
+					<xsl:text>&#160;&#160;&#160;&#160;&#160;</xsl:text>
+					<xsl:if test="string-length(poster) &gt; 0">
+						<xsl:choose>
+							<xsl:when test="string-length(email) &gt; 0">
+								<b><a>
+									<xsl:attribute name="href">
+										mailto:<xsl:value-of select="email" />
+									</xsl:attribute>
+									<xsl:value-of select="poster"/>	
+								</a>: </b>
+							</xsl:when>
+							<xsl:when test="string-length(email) = 0">
+								<b><xsl:value-of select="poster"/>: </b>
+							</xsl:when>
+						</xsl:choose>
+					</xsl:if>
+					<xsl:value-of select="text"/><br/>
+				</xsl:for-each>
+				<br/>
+				<span style="float: right; text-align: right; width: 25em">
+					<xsl:value-of select="f_time" />
+					:: <a>
+						<xsl:attribute name="href">
+							<xsl:value-of select="@answerlink" />
+						</xsl:attribute>
+						Reply
+					</a>
+					<xsl:if test="../globals/admin = 1">
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@disablelink" />
+							</xsl:attribute>
+							Hide
+						</a>
+						:: <a>
+							<xsl:attribute name="href">
+								<xsl:value-of select="@modifylink" />
+							</xsl:attribute>
+							Modify
+						</a>
+					</xsl:if>
+				</span>
+			</div>
+		</xsl:if>
+	</xsl:for-each>
+</div>
+</div>
+<p style="text-align: center;">
+<xsl:if test="entries/globals/admin = 0">
+        <a href="login.php">Login to Admin Interface</a> :: 
+</xsl:if>
+<a href="create.php">Create a new instance</a> ::
+<a href="credits.php">Question Tool Credits</a>
+
+</p>
+</div>
+
+</body>
+</html>
+</xsl:template>
+</xsl:stylesheet>
